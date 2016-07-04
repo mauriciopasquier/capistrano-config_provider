@@ -31,6 +31,11 @@ namespace :config do
 
   desc 'Fetches or updates configuration in server'
   task :provision do
+    invoke fetch(:config_strategy)
+  end
+
+  desc 'Fetches or updates configuration in server through git'
+  task :git do
     on release_roles fetch(:config_roles) do
       config_path = shared_path.join(fetch(:config_release_path))
 
@@ -42,15 +47,29 @@ namespace :config do
       end
     end
   end
+
+  desc 'Syncs a local dir with the server'
+  task :dir do
+    local_dir = ENV['config_dir'] || fetch(:config_local_path)
+    remote_dir = shared_path.join(fetch(:config_release_path))
+
+    on roles(:app) do
+      Dir.glob("#{local_dir}/*").each do |file|
+        upload! file, remote_dir, recursive: true
+      end
+    end
+  end
 end
 
 after 'deploy:check:directories', 'config:provision'
 
 namespace :load do
   task :defaults do
+    set :config_strategy, fetch(:config_strategy, 'config:git')
     set :config_roles, fetch(:config_roles, :all)
     set :config_repo_url, fetch(:config_repo_url, nil)
     set :config_repo_branch, fetch(:config_repo_branch, :master)
     set :config_release_path, fetch(:config_release_path, 'config')
+    set :config_local_path, fetch(:config_local_path, "tmp/#{fetch(:stage)}-config")
   end
 end

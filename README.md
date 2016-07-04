@@ -46,6 +46,9 @@ can clone it through your ssh session.
 
 ### Configuration and defaults
 
+- `config_strategy` is `'config:git'`. It should be the name of the task that
+  updates the configuration. This gems provides `'config:git'` and
+  `'config:dir'`, but you could define a custom task.
 - `config_repo_url` is `nil` by default. It should be your configuration
   repository url.
 - `config_roles` is `:all` by default. In which roles deploy clone this repo.
@@ -54,6 +57,9 @@ can clone it through your ssh session.
 - `config_release_path` is `'config'` by default. This is the name of the
   cloned repo in capistrano's shared path and should match your linked files'
   structure. It works out of the box with capistrano and rails.
+- `config_local_path` is `"tmp/#{fetch(:stage)}-config"` by default. If you're
+  using `'config:dir'` strategy, this must be the directory from where the
+  configuration will be uploaded to the server.
 
 ## Development
 
