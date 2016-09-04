@@ -40,7 +40,7 @@ namespace :config do
       config_path = shared_path.join(fetch(:config_release_path))
 
       # If config already exists, update it, If it doesn't, clone it
-      if test "[ -d #{config_path} ]"
+      if test("[ -d #{config_path} ]") && test("[ $(ls -A #{config_path}) ]")
         invoke 'config:update'
       else
         invoke 'config:clone'
@@ -50,10 +50,13 @@ namespace :config do
 
   desc 'Syncs a local dir with the server'
   task :dir do
-    local_dir = ENV['config_dir'] || fetch(:config_local_path)
+    local_dir = fetch(:config_local_path)
     remote_dir = shared_path.join(fetch(:config_release_path))
 
     on roles(:app) do
+      # Make sure remote_dir exists
+      execute :mkdir, '-pv', remote_dir
+
       Dir.glob("#{local_dir}/*").each do |file|
         upload! file, remote_dir, recursive: true
       end
