@@ -13,28 +13,34 @@ If from a local path, this uploads the files before [Capistrano][] symlinks them
 
 Add this line to your application's Gemfile:
 
-```ruby
+``` ruby
 gem 'capistrano-config_provider'
 ```
 
 And then execute:
 
-    $ bundle
+``` bash
+$ bundle
+```
 
 Or install it yourself as:
 
-    $ gem install capistrano-config_provider
+``` ruby
+$ gem install capistrano-config_provider
+```
 
 ## Usage
 
 If you are using [capistrano][]'s feature of linking config files to each release,
 like this
 
-    set :linked_files, %w{
-      config/database.yml
-      config/secrets.yml
-      config/environments/production.rb
-    }
+``` ruby
+set :linked_files, %w{
+  config/database.yml
+  config/secrets.yml
+  config/environments/production.rb
+}
+```
 
 you have to somehow get those files in the remote server, before even trying to
 deploy. This makes a "cold" deploy really cumbersome. With this gem you just
@@ -46,28 +52,30 @@ can clone it through your ssh session.
 
 ### Configuration and defaults
 
-    # The name of the task that updates the configuration. This gems provides
-    # `'config:git'` and `'config:dir'`, but you could define a custom task.
-    set :config_strategy, 'config:git'
+``` ruby
+# The name of the task that updates the configuration. This gems provides
+# `'config:git'` and `'config:dir'`, but you could define a custom task.
+set :config_strategy, 'config:git'
 
-    # Your configuration repository url.
-    set :config_repo_url, nil
+# Your configuration repository url.
+set :config_repo_url, nil
 
-    # In which roles deploy this repo.
-    set :config_roles, :all
+# In which roles deploy this repo.
+set :config_roles, :all
 
-    # Which branch to use from `:config_repo_url`. You could deploy from
-    # different branches in different stages.
-    set :config_repo_branch, :master
+# Which branch to use from `:config_repo_url`. You could deploy from
+# different branches in different stages.
+set :config_repo_branch, :master
 
-    # The name of the cloned repo in capistrano's shared path and should match
-    # your linked files' structure. It works out of the box with capistrano and
-    # rails.
-    set :config_release_path, 'config'
+# The name of the cloned repo in capistrano's shared path and should match
+# your linked files' structure. It works out of the box with capistrano and
+# rails.
+set :config_release_path, 'config'
 
-    # The directory from where the configuration will be uploaded to the
-    # server, if you're using `'config:dir'` strategy.
-    set :config_local_path`, "tmp/#{fetch(:stage)}-config"
+# The directory from where the configuration will be uploaded to the
+# server, if you're using `'config:dir'` strategy.
+set :config_local_path`, "tmp/#{fetch(:stage)}-config"
+```
 
 ## Development
 
