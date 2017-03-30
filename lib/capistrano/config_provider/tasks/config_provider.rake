@@ -63,9 +63,7 @@ namespace :config do
     on roles(:app) do
       # Make sure remote_dir exists
       execute :mkdir, '-pv', remote_dir
-    end
 
-    run_locally do
       Dir.glob("#{local_dir}/*").each do |file|
         upload! file, remote_dir, recursive: true
       end
@@ -74,7 +72,7 @@ namespace :config do
 
   desc 'Validates configuration values'
   task :validate do
-    on release_roles fetch(:config_roles) do
+    run_locally do
       case fetch(:config_strategy)
       when 'config:git'
         if fetch(:config_repo_url).nil?
