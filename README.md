@@ -25,8 +25,14 @@ $ bundle
 
 Or install it yourself as:
 
-``` ruby
+``` bash
 $ gem install capistrano-config_provider
+```
+
+Then load it in your `Capfile`:
+
+``` ruby
+require 'capistrano/config_provider'
 ```
 
 ## Usage
