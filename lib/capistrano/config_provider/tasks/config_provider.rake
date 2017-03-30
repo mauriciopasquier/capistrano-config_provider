@@ -5,23 +5,26 @@
 namespace :config do
   desc 'Clones configuration to shared path'
   task :clone do
-    next unless fetch(:config_repo_url)
+    repo_url = fetch(:config_repo_url)
+
+    next unless repo_url
 
     on release_roles fetch(:config_roles) do
       within shared_path do
         execute :git, 'clone',
-          '--branch', fetch(:config_repo_branch),
-          fetch(:config_repo_url), fetch(:config_release_path)
+          '--branch', fetch(:config_repo_branch), repo_url, fetch(:config_release_path)
       end
     end
   end
 
   desc 'Updates app configuration from cloned repo'
   task :update do
-    next unless fetch(:config_release_path)
+    release_path = fetch(:config_release_path)
+
+    next unless release_path && fetch(:config_repo_url)
 
     on release_roles fetch(:config_roles) do
-      within shared_path.join(fetch(:config_release_path)) do
+      within shared_path.join(release_path) do
         execute :git, 'fetch', 'origin'
         execute :git, 'checkout', fetch(:config_repo_branch)
         execute :git, 'pull'
@@ -36,11 +39,13 @@ namespace :config do
 
   desc 'Fetches or updates configuration in server through git'
   task :git do
+    next unless fetch(:config_repo_url)
+
     on release_roles fetch(:config_roles) do
-      config_path = shared_path.join(fetch(:config_release_path))
+      release_path = shared_path.join(fetch(:config_release_path))
 
       # If config already exists, update it, If it doesn't, clone it
-      if test("[ -d #{config_path} ]") && test("[ $(ls -A #{config_path}) ]")
+      if test("[ -d #{release_path} ]") && test("[ $(ls -A #{release_path}) ]")
         invoke 'config:update'
       else
         invoke 'config:clone'
@@ -53,12 +58,32 @@ namespace :config do
     local_dir = fetch(:config_local_path)
     remote_dir = shared_path.join(fetch(:config_release_path))
 
+    next unless test("[ -d #{local_dir} ]")
+
     on roles(:app) do
       # Make sure remote_dir exists
       execute :mkdir, '-pv', remote_dir
 
       Dir.glob("#{local_dir}/*").each do |file|
         upload! file, remote_dir, recursive: true
+      end
+    end
+  end
+
+  desc 'Validates configuration values'
+  task :validate do
+    on release_roles fetch(:config_roles) do
+      case fetch(:config_strategy)
+      when 'config:git'
+        if fetch(:config_repo_url).nil?
+          warn 'config: :config_repo_url is not set'
+        end
+      when 'config:dir'
+        unless test "[ -d #{fetch(:config_local_path)} ]"
+          warn "config: 'config_local_path: #{fetch(:config_local_path)}' doesn't exist"
+        end
+      else
+        warn "config: unknown :config_strategy, couldn't validate it"
       end
     end
   end
