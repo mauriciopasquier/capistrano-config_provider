@@ -58,12 +58,14 @@ namespace :config do
     local_dir = fetch(:config_local_path)
     remote_dir = shared_path.join(fetch(:config_release_path))
 
-    next unless test("[ -d #{local_dir} ]")
+    run_locally { next unless test("[ -d #{local_dir} ]") }
 
     on roles(:app) do
       # Make sure remote_dir exists
       execute :mkdir, '-pv', remote_dir
+    end
 
+    run_locally do
       Dir.glob("#{local_dir}/*").each do |file|
         upload! file, remote_dir, recursive: true
       end
