@@ -33,7 +33,7 @@ namespace :config do
   end
 
   desc 'Fetches or updates configuration in server'
-  task :provision do
+  task provision: :validate do
     invoke fetch(:config_strategy)
   end
 
