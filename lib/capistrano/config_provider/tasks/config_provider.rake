@@ -79,8 +79,10 @@ namespace :config do
           warn 'config: :config_repo_url is not set'
         end
       when 'config:dir'
-        unless test "[ -d #{fetch(:config_local_path)} ]"
-          warn "config: 'config_local_path: #{fetch(:config_local_path)}' doesn't exist"
+        local_path = fetch(:config_local_path)
+
+        unless test("[ -d #{local_path} ]")
+          warn "config: 'config_local_path: #{local_path}' doesn't exist"
         end
       else
         warn "config: unknown :config_strategy, couldn't validate it"
