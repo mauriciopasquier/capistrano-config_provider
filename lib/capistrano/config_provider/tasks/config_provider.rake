@@ -44,8 +44,9 @@ namespace :config do
     on release_roles fetch(:config_roles) do
       release_path = shared_path.join(fetch(:config_release_path))
 
-      # If config already exists, update it, If it doesn't, clone it
-      if test("[ -d #{release_path} ]") && test("[ -z '$(ls -A #{release_path})' ]")
+      # If config path already exists and is not empty, update it. If it
+      # doesn't, clone it
+      if test("[ -d #{release_path} ]") && !test("[ -z '$(ls -A #{release_path})' ]")
         invoke 'config:update'
       else
         invoke 'config:clone'
