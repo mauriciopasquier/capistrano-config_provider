@@ -45,7 +45,7 @@ namespace :config do
       release_path = shared_path.join(fetch(:config_release_path))
 
       # If config already exists, update it, If it doesn't, clone it
-      if test("[ -d #{release_path} ]") && test("[ $(ls -A #{release_path}) ]")
+      if test("[ -d #{release_path} ]") && test("[ -z '$(ls -A #{release_path})' ]")
         invoke 'config:update'
       else
         invoke 'config:clone'
